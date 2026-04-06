@@ -1,29 +1,27 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import Sidebar from './components/Sidebar';
 import DashboardOverview from './components/DashboardOverview';
-import { ThemeProvider, createTheme, CssBaseline, Box } from '@mui/material';
-import { useFinance } from './context/FinanceContext';
+import Transfers from './components/Transfers';
+import Payments from './components/Payments';
+import Wallet from './components/Wallet';
+import Settings from './components/Settings';
+import { ThemeProvider, createTheme, CssBaseline, Box, TextField, InputAdornment, IconButton, Badge, Avatar, Typography } from '@mui/material';
+import { Search, Notifications, HelpOutline } from '@mui/icons-material';
 
 function App() {
-  const { theme } = useFinance();
+  const [currentPage, setCurrentPage] = useState('dashboard');
 
   const muiTheme = useMemo(() => createTheme({
     typography: {
       fontFamily: "'Inter', sans-serif",
     },
     palette: {
-      mode: 'dark', // Forced dark mode for this aesthetic
+      mode: 'dark',
       primary: {
-        main: '#2dd4bf', // Neon teal from image
+        main: '#2dd4bf',
       },
       secondary: {
-        main: '#f43f5e', // Pinkish red
-      },
-      warning: {
-        main: '#eab308' // yellowish
-      },
-      info: {
-        main: '#818cf8' // purple
+        main: '#f43f5e',
       },
       background: {
         default: '#070707',
@@ -35,19 +33,16 @@ function App() {
       }
     },
     shape: {
-      borderRadius: 16,
+      borderRadius: 12,
     },
     components: {
       MuiCard: {
         styleOverrides: {
           root: {
             backgroundImage: 'none',
-            transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, border-color 0.3s ease',
             boxShadow: 'none',
-            border: '1px solid rgba(255, 255, 255, 0.03)',
-            borderRadius: 12,
-            backgroundColor: '#121212',
-            '&:hover': {} // removed hover movement for this specific strict dashboard layout or optional
+            border: '1px solid rgba(255, 255, 255, 0.05)',
+            backgroundColor: '#0f0f0f',
           }
         }
       },
@@ -56,32 +51,90 @@ function App() {
           root: {
             textTransform: 'none',
             fontWeight: 600,
-            borderRadius: 8,
-            transition: 'all 0.2s ease-in-out',
-          },
-          contained: {
-            boxShadow: theme === 'dark'
-               ? '0 4px 14px rgba(96, 165, 250, 0.3)'
-               : '0 4px 14px rgba(59, 130, 246, 0.3)',
-            '&:hover': {
-              transform: 'translateY(-2px)',
-              boxShadow: theme === 'dark'
-                 ? '0 6px 20px rgba(96, 165, 250, 0.5)'
-                 : '0 6px 20px rgba(59, 130, 246, 0.5)',
-            }
           }
         }
       }
     }
-  }), [theme]);
+  }), []);
+
+  const renderContent = () => {
+    switch (currentPage) {
+      case 'dashboard': return <DashboardOverview />;
+      case 'transfers': return <Transfers />;
+      case 'payments': return <Payments />;
+      case 'wallet': return <Wallet />;
+      case 'settings': return <Settings />;
+      default: return <DashboardOverview />;
+    }
+  };
 
   return (
     <ThemeProvider theme={muiTheme}>
       <CssBaseline />
       <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#070707' }}>
-        <Sidebar />
-        <Box component="main" sx={{ flexGrow: 1, p: 4, display: 'flex', flexDirection: 'column', gap: 3, overflowY: 'auto', height: '100vh' }}>
-          <DashboardOverview />
+        <Sidebar currentPage={currentPage} onNavigate={setCurrentPage} />
+        
+        <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+          {/* Professional Top Bar */}
+          <Box sx={{ 
+            p: 2, 
+            px: 4, 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            borderBottom: '1px solid rgba(255,255,255,0.05)',
+            bgcolor: 'rgba(7,7,7,0.8)',
+            backdropFilter: 'blur(10px)',
+            zIndex: 10,
+            position: 'sticky',
+            top: 0
+          }}>
+            <TextField 
+              placeholder="Search anything..." 
+              size="small"
+              sx={{ 
+                width: 300,
+                '& .MuiOutlinedInput-root': {
+                   bgcolor: 'rgba(255,255,255,0.03)',
+                   '& fieldset': { border: 'none' }
+                }
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Search fontSize="small" sx={{ color: 'text.secondary' }} />
+                  </InputAdornment>
+                )
+              }}
+            />
+            
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <IconButton size="small" sx={{ color: 'text.secondary' }}>
+                <HelpOutline fontSize="small" />
+              </IconButton>
+              <IconButton size="small" sx={{ color: 'text.secondary' }}>
+                <Badge variant="dot" color="primary">
+                  <Notifications fontSize="small" />
+                </Badge>
+              </IconButton>
+              <Box sx={{ width: '1px', height: 20, bgcolor: 'rgba(255,255,255,0.1)', mx: 1 }} />
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, cursor: 'pointer' }} onClick={() => setCurrentPage('settings')}>
+                <Box sx={{ textAlign: 'right', display: { xs: 'none', sm: 'block' } }}>
+                  <Typography variant="body2" fontWeight="bold">Kshitij Chavan</Typography>
+                  <Typography variant="caption" color="text.secondary">Free Plan</Typography>
+                </Box>
+                <Avatar 
+                  sx={{ width: 32, height: 32, border: '1px solid rgba(255,255,255,0.1)' }} 
+                  src="https://api.dicebear.com/7.x/avataaars/svg?seed=Kshitij"
+                />
+              </Box>
+            </Box>
+          </Box>
+
+          {/* Main Content Area */}
+          <Box component="main" sx={{ flexGrow: 1, p: 4 }}>
+            {renderContent()}
+          </Box>
         </Box>
       </Box>
     </ThemeProvider>

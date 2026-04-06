@@ -12,24 +12,29 @@ import {
   Logout as LogoutIcon,
   AccountBalanceWallet
 } from '@mui/icons-material';
-import { useFinance } from '../context/FinanceContext';
 
-export default function Sidebar() {
-  const { toggleTheme } = useFinance();
+interface SidebarProps {
+  currentPage: string;
+  onNavigate: (page: string) => void;
+}
+
+export default function Sidebar({ currentPage, onNavigate }: SidebarProps) {
+  // Navigation callback triggers state changes in App.tsx
+
 
   const menuItemsGeneral = [
-    { text: 'Dashboard', icon: <DashboardIcon />, active: true },
-    { text: 'Transfers', icon: <TransfersIcon /> },
-    { text: 'Payments', icon: <PaymentsIcon /> },
-    { text: 'Games', icon: <GamesIcon /> },
-    { text: 'Tickets', icon: <TicketsIcon /> },
+    { text: 'Dashboard', icon: <DashboardIcon />, id: 'dashboard' },
+    { text: 'Transfers', icon: <TransfersIcon />, id: 'transfers' },
+    { text: 'Payments', icon: <PaymentsIcon />, id: 'payments' },
+    { text: 'Games', icon: <GamesIcon />, id: 'games' },
+    { text: 'Tickets', icon: <TicketsIcon />, id: 'tickets' },
   ];
 
   const menuItemsPersonal = [
-    { text: 'Wallet', icon: <WalletIcon /> },
-    { text: 'Messages', icon: <MessagesIcon /> },
-    { text: 'Notifications', icon: <NotificationsIcon /> },
-    { text: 'Settings', icon: <SettingsIcon /> },
+    { text: 'Wallet', icon: <WalletIcon />, id: 'wallet' },
+    { text: 'Messages', icon: <MessagesIcon />, id: 'messages' },
+    { text: 'Notifications', icon: <NotificationsIcon />, id: 'notifications' },
+    { text: 'Settings', icon: <SettingsIcon />, id: 'settings' },
   ];
 
   return (
@@ -47,12 +52,12 @@ export default function Sidebar() {
       }}
     >
       {/* Brand */}
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 5, px: 2, cursor: 'pointer' }} onClick={toggleTheme}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 5, px: 2, cursor: 'pointer' }} onClick={() => onNavigate('dashboard')}>
         <Box sx={{ bgcolor: 'white', borderRadius: 1, p: 0.5, display: 'flex', color: '#000' }}>
           <AccountBalanceWallet fontSize="small" />
         </Box>
         <Typography variant="h6" fontWeight="bold" letterSpacing={1} color="white">
-          CASHMATE
+          FIN DASHBOARD
         </Typography>
       </Box>
 
@@ -64,12 +69,13 @@ export default function Sidebar() {
         {menuItemsGeneral.map((item) => (
           <ListItem key={item.text} disablePadding>
             <ListItemButton
+              onClick={() => onNavigate(item.id)}
               sx={{
                 borderRadius: 2,
                 mb: 0.5,
-                bgcolor: item.active ? 'rgba(45, 212, 191, 0.1)' : 'transparent',
-                color: item.active ? '#2dd4bf' : 'text.secondary',
-                borderLeft: item.active ? '3px solid #2dd4bf' : '3px solid transparent',
+                bgcolor: currentPage === item.id ? 'rgba(45, 212, 191, 0.1)' : 'transparent',
+                color: currentPage === item.id ? '#2dd4bf' : 'text.secondary',
+                borderLeft: currentPage === item.id ? '3px solid #2dd4bf' : '3px solid transparent',
                 '&:hover': {
                   bgcolor: 'rgba(255,255,255,0.05)',
                   color: 'white'
@@ -79,7 +85,7 @@ export default function Sidebar() {
               <ListItemIcon sx={{ minWidth: 40, color: 'inherit' }}>
                 {item.icon}
               </ListItemIcon>
-              <ListItemText primary={item.text} primaryTypographyProps={{ fontSize: 14, fontWeight: item.active ? 600 : 500 }} />
+              <ListItemText primary={item.text} primaryTypographyProps={{ fontSize: 14, fontWeight: currentPage === item.id ? 600 : 500 }} />
             </ListItemButton>
           </ListItem>
         ))}
@@ -93,11 +99,13 @@ export default function Sidebar() {
         {menuItemsPersonal.map((item) => (
           <ListItem key={item.text} disablePadding>
             <ListItemButton
+              onClick={() => onNavigate(item.id)}
               sx={{
                 borderRadius: 2,
                 mb: 0.5,
-                color: 'text.secondary',
-                borderLeft: '3px solid transparent',
+                bgcolor: currentPage === item.id ? 'rgba(45, 212, 191, 0.05)' : 'transparent',
+                color: currentPage === item.id ? '#2dd4bf' : 'text.secondary',
+                borderLeft: currentPage === item.id ? '3px solid #2dd4bf' : '3px solid transparent',
                 '&:hover': {
                   bgcolor: 'rgba(255,255,255,0.05)',
                   color: 'white'
@@ -107,7 +115,7 @@ export default function Sidebar() {
               <ListItemIcon sx={{ minWidth: 40, color: 'inherit' }}>
                 {item.icon}
               </ListItemIcon>
-              <ListItemText primary={item.text} primaryTypographyProps={{ fontSize: 14, fontWeight: 500 }} />
+              <ListItemText primary={item.text} primaryTypographyProps={{ fontSize: 14, fontWeight: currentPage === item.id ? 500 : 500 }} />
             </ListItemButton>
           </ListItem>
         ))}
@@ -133,3 +141,4 @@ export default function Sidebar() {
     </Box>
   );
 }
+
